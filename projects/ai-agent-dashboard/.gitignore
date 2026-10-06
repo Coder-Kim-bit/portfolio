@@ -1,0 +1,15 @@
+# Dependencies & Temporary Files
+.env
+.env.local
+*.log
+__pycache__/
+*.pyc
+
+# IDE / Editor Files
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# OS Files
+Thumbs.db

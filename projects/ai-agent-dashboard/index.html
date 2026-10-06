@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gemini AI Agent Visual Studio & Dashboard</title>
+  
+  <!-- SEO & Typography -->
+  <meta name="description" content="State-of-the-art interactive visual dashboard for configuring, testing, and monitoring AI Agents powered by Google Gemini API." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  
+  <!-- CSS Design System -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- Navigation Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">
+          <i data-lucide="bot"></i>
+        </div>
+        <div class="brand-text">
+          <h1>AgentStudio</h1>
+          <span>Gemini 2.5 Engine</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <div class="nav-item active" data-view="studio" id="nav-studio">
+          <i data-lucide="sliders"></i>
+          <span>Agent Studio</span>
+        </div>
+        <div class="nav-item" data-view="console" id="nav-console">
+          <i data-lucide="terminal"></i>
+          <span>Live Console</span>
+        </div>
+        <div class="nav-item" data-view="pipeline" id="nav-pipeline">
+          <i data-lucide="workflow"></i>
+          <span>Workflows</span>
+        </div>
+        <div class="nav-item" data-view="knowledge" id="nav-knowledge">
+          <i data-lucide="database"></i>
+          <span>Knowledge Hub</span>
+        </div>
+        <div class="nav-item" data-view="analytics" id="nav-analytics">
+          <i data-lucide="bar-chart-3"></i>
+          <span>Analytics & Logs</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="api-status-badge" id="btn-open-api-modal" style="cursor: pointer;" title="Configure Gemini API Key">
+          <div class="status-indicator">
+            <span class="status-dot demo" id="api-status-dot"></span>
+            <span id="api-status-text" style="font-weight: 500;">Interactive Demo Mode</span>
+          </div>
+          <i data-lucide="key" style="width: 14px; height: 14px; color: var(--text-dim);"></i>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+      <!-- Header Bar -->
+      <header class="top-header">
+        <div class="header-title">
+          <h2 id="view-title">Agent Studio & System Configuration</h2>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline btn-sm" id="btn-quick-key">
+            <i data-lucide="shield-check"></i>
+            <span>Gemini 2.5 Active</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- VIEW 1: AGENT STUDIO -->
+      <section class="content-view active" id="view-studio">
+        <div class="studio-grid">
+          <!-- Left Column: Presets Library -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <span class="panel-title"><i data-lucide="sparkles"></i> Agent Library</span>
+              <button class="btn btn-primary btn-sm" id="btn-save-agent">
+                <i data-lucide="plus"></i> Save
+              </button>
+            </div>
+            <div class="preset-list" id="preset-list">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Right Column: Agent Configuration Editor -->
+          <div class="panel-card" style="overflow-y: auto;">
+            <div class="panel-header">
+              <span class="panel-title"><i data-lucide="settings"></i> Configuration & Persona</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="agent-name">Agent Name</label>
+              <input type="text" id="agent-name" class="form-input" placeholder="e.g. Deep Researcher" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="agent-model">Gemini Model</label>
+                <select id="agent-model" class="form-select">
+                  <option value="gemini-2.5-flash">gemini-2.5-flash (Fast & Efficient)</option>
+                  <option value="gemini-2.5-pro">gemini-2.5-pro (Deep Reasoning & Coding)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Temperature: <span class="slider-val" id="temp-val">0.2</span></label>
+                <div class="slider-group" style="margin-top: 8px;">
+                  <input type="range" id="agent-temp" class="form-range" min="0" max="1" step="0.05" value="0.2" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="agent-system-prompt">System Instruction (Persona & Constraints)</label>
+              <textarea id="agent-system-prompt" class="form-textarea" rows="6" placeholder="You are an expert AI Agent..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Enabled Capabilities & Tools</label>
+              <div class="tools-grid" id="tools-selector">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: LIVE EXECUTION CONSOLE -->
+      <section class="content-view" id="view-console">
+        <div class="console-grid">
+          <!-- Main Reasoning Timeline -->
+          <div class="panel-card" style="display: flex; flex-direction: column;">
+            <div class="panel-header">
+              <span class="panel-title"><i data-lucide="activity"></i> Reasoning Flow & Execution Graph</span>
+              <span id="console-agent-title" style="font-size: 12px; color: var(--primary); font-family: var(--font-mono);">Deep Researcher (gemini-2.5-flash)</span>
+            </div>
+
+            <div class="prompt-bar">
+              <input type="text" id="console-prompt" class="prompt-input" placeholder="Ask your agent a task (e.g. Research quantum computing advances or Run python analysis)..." />
+              <button class="btn btn-primary" id="btn-run-agent">
+                <i data-lucide="play"></i> Execute Agent
+              </button>
+            </div>
+
+            <div class="timeline-container" id="timeline-flow">
+              <div style="text-align: center; color: var(--text-dim); margin-top: 60px;">
+                <i data-lucide="terminal" style="width: 48px; height: 48px; opacity: 0.3; margin-bottom: 12px;"></i>
+                <p style="font-size: 14px;">Enter a prompt above to start live step-by-step agent reasoning.</p>
+              </div>
+            </div>
+
+            <div class="pulsing-loader" id="console-loader" style="display: none; border-top: 1px solid var(--border-subtle); margin-top: 12px;">
+              <div class="loader-dot"></div>
+              <div class="loader-dot"></div>
+              <div class="loader-dot"></div>
+              <span style="margin-left: 8px;">Agent executing tool & reasoning cycle...</span>
+            </div>
+          </div>
+
+          <!-- Inspector Sidebar -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <span class="panel-title"><i data-lucide="cpu"></i> Agent Runtime Inspector</span>
+            </div>
+
+            <div class="metric-card" style="margin-bottom: 12px;">
+              <span class="metric-label">Execution Engine</span>
+              <span class="metric-val" style="font-size: 18px; color: var(--text-main);">Google Gemini 2.5</span>
+            </div>
+
+            <div class="metric-card" style="margin-bottom: 12px;">
+              <span class="metric-label">Tool Sandbox Status</span>
+              <span style="font-size: 13px; color: var(--accent-emerald); font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                <span class="status-dot"></span> Active & Ready (5 Tools Loaded)
+              </span>
+            </div>
+
+            <div style="margin-top: 16px;">
+              <label class="form-label">Available Sandbox Tools</label>
+              <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--text-muted);">
+                <div style="display: flex; items-center; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+                  <span>Web Search</span>
+                  <code style="color: var(--primary);">web_search</code>
+                </div>
+                <div style="display: flex; items-center; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+                  <span>Python Sandbox</span>
+                  <code style="color: var(--primary);">python_interpreter</code>
+                </div>
+                <div style="display: flex; items-center; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+                  <span>Knowledge RAG</span>
+                  <code style="color: var(--primary);">rag_retriever</code>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: MULTI-AGENT WORKFLOW PIPELINES -->
+      <section class="content-view" id="view-pipeline">
+        <div class="panel-card" style="height: calc(100vh - 112px);">
+          <div class="panel-header">
+            <span class="panel-title"><i data-lucide="workflow"></i> Multi-Agent Pipeline Orchestration</span>
+            <button class="btn btn-primary btn-sm" id="btn-run-pipeline">
+              <i data-lucide="play"></i> Run Chain Pipeline
+            </button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; height: 100%;">
+            <div>
+              <h4 style="font-size: 14px; margin-bottom: 12px; color: var(--text-muted);">Pipeline Node Sequence</h4>
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div class="step-card thought">
+                  <div class="step-header">
+                    <span class="step-tag thought">Node 1</span>
+                    <span style="font-size: 12px; color: var(--secondary);">Deep Researcher</span>
+                  </div>
+                  <p style="font-size: 13px;">Gathers real-time web search facts & market data.</p>
+                </div>
+                <div style="text-align: center; color: var(--text-dim);"><i data-lucide="arrow-down"></i></div>
+                <div class="step-card tool">
+                  <div class="step-header">
+                    <span class="step-tag tool">Node 2</span>
+                    <span style="font-size: 12px; color: var(--primary);">Financial Analyst</span>
+                  </div>
+                  <p style="font-size: 13px;">Computes numerical projections & statistical metrics via Python sandbox.</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 16px; font-family: var(--font-mono); font-size: 12px; overflow-y: auto;" id="pipeline-log">
+              <span style="color: var(--text-dim);">Click 'Run Chain Pipeline' to trigger multi-agent task execution...</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 4: KNOWLEDGE BASE -->
+      <section class="content-view" id="view-knowledge">
+        <div class="studio-grid">
+          <!-- Upload Box -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <span class="panel-title"><i data-lucide="file-plus"></i> Add Grounding Document</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="doc-title-input">Document Title</label>
+              <input type="text" id="doc-title-input" class="form-input" placeholder="e.g. Q3 Strategic Roadmap" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="doc-content-input">Content / Excerpt</label>
+              <textarea id="doc-content-input" class="form-textarea" rows="8" placeholder="Paste context text for agent RAG retrieval..."></textarea>
+            </div>
+            <button class="btn btn-primary" id="btn-add-doc">
+              <i data-lucide="upload-cloud"></i> Add to Vector Store
+            </button>
+          </div>
+
+          <!-- Document Store -->
+          <div class="panel-card" style="overflow-y: auto;">
+            <div class="panel-header">
+              <span class="panel-title"><i data-lucide="database"></i> Stored Knowledge Chunks</span>
+            </div>
+            <div id="knowledge-list" style="display: flex; flex-direction: column; gap: 12px;">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 5: ANALYTICS & LOGS -->
+      <section class="content-view" id="view-analytics">
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+          <div class="grid-2col" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="metric-card">
+              <span class="metric-label">Total Executions</span>
+              <span class="metric-val" id="stat-total-runs">0</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Tokens Processed</span>
+              <span class="metric-val" id="stat-total-tokens" style="color: var(--secondary);">0 tokens</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Avg Execution Latency</span>
+              <span class="metric-val" id="stat-avg-latency" style="color: var(--accent-emerald);">0.0s</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Active Sandbox Tools</span>
+              <span class="metric-val" style="color: var(--accent-pink);">5 Loaded</span>
+            </div>
+          </div>
+
+          <div class="panel-card">
+            <div class="panel-header">
+              <span class="panel-title"><i data-lucide="activity"></i> Agent Performance & System Status</span>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+              All agent reasoning steps, function parameters, and latency metrics are tracked in real-time. Connect your Gemini API key in the sidebar for unlimited live model execution.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- API KEY MODAL DIALOG -->
+  <div class="modal-overlay" id="api-key-modal">
+    <div class="modal-card">
+      <h3 class="modal-title"><i data-lucide="key" style="color: var(--primary);"></i> Google Gemini API Settings</h3>
+      <p class="modal-desc">
+        Enter your Gemini API key below to enable direct live model requests (`gemini-2.5-flash` / `gemini-2.5-pro`). If empty, the app runs in interactive sandbox mode.
+      </p>
+
+      <div class="form-group">
+        <label class="form-label" for="input-gemini-key">Gemini API Key</label>
+        <input type="password" id="input-gemini-key" class="form-input" placeholder="AIzaSy..." />
+        <span style="font-size: 11px; color: var(--text-dim); margin-top: 4px; display: block;">Keys are stored locally in your browser (`localStorage`).</span>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-close-api-modal">Cancel</button>
+        <button class="btn btn-primary" id="btn-save-api-key">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entry Script -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
